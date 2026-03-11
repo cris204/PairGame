@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad4d319b9b192184699193a6ed082e97, type: 3}
+  m_Name: GameConfig
+  m_EditorClassIdentifier: 
+  defaultRows: 3
+  defaultColumns: 3
+  boardSpacing: 16
+  boardPadding: 16
+  flipDuration: 0.2
+  initialRevealDuration: 1
+  mismatchRevealDuration: 0.5
+  matchPoints: 100
+  mismatchPenalty: 10
+  enableCombo: 1
+  comboBonusPerStep: 25
+  autoSaveOnStateChange: 1
+  sfxVolume: 1
