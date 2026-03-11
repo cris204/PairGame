@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,10 +10,14 @@ namespace CardMatch.Presentation.UI
         [SerializeField] private GameObject rootContainer;
         [SerializeField] private Button newGameButton;
         [SerializeField] private Button loadGameButton;
+        [SerializeField] private MenuBackgroundZoom backgroundZoom;
+        [SerializeField] private bool playBackgroundZoomOnShow = true;
 
         private UIAnimatedPanel animatedPanel;
         private Action onNewGameRequested;
         private Action onLoadGameRequested;
+        private Coroutine newGameTransitionCoroutine;
+        private bool isStartingNewGame;
 
         private void Awake()
         {
@@ -22,6 +27,7 @@ namespace CardMatch.Presentation.UI
             }
 
             ResolveAnimatedPanel();
+            ResolveBackgroundZoom();
             BindButtons();
         }
 
@@ -51,14 +57,16 @@ namespace CardMatch.Presentation.UI
             }
 
             ResolveAnimatedPanel();
+            ResolveBackgroundZoom();
 
             if (animatedPanel != null)
             {
                 animatedPanel.ShowAnimated();
-                return;
             }
-
-            rootContainer.SetActive(true);
+            else
+            {
+                rootContainer.SetActive(true);
+            }
         }
 
         public void Hide()
@@ -67,6 +75,14 @@ namespace CardMatch.Presentation.UI
             {
                 return;
             }
+
+            if (newGameTransitionCoroutine != null)
+            {
+                StopCoroutine(newGameTransitionCoroutine);
+                newGameTransitionCoroutine = null;
+            }
+
+            isStartingNewGame = false;
 
             ResolveAnimatedPanel();
 
@@ -96,7 +112,17 @@ namespace CardMatch.Presentation.UI
 
         private void HandleNewGameClicked()
         {
-            onNewGameRequested?.Invoke();
+            if (isStartingNewGame)
+            {
+                return;
+            }
+
+            if (newGameTransitionCoroutine != null)
+            {
+                StopCoroutine(newGameTransitionCoroutine);
+            }
+
+            newGameTransitionCoroutine = StartCoroutine(PlayNewGameTransition());
         }
 
         private void HandleLoadGameClicked()
@@ -121,6 +147,56 @@ namespace CardMatch.Presentation.UI
             if (animatedPanel == null)
             {
                 animatedPanel = rootContainer.GetComponentInChildren<UIAnimatedPanel>(true);
+            }
+        }
+
+        private IEnumerator PlayNewGameTransition()
+        {
+            isStartingNewGame = true;
+            SetButtonsInteractable(false);
+
+            if (backgroundZoom != null)
+            {
+                backgroundZoom.PlayZoom();
+
+                if (backgroundZoom.ZoomDuration > 0f)
+                {
+                    if (backgroundZoom.UseUnscaledTime)
+                    {
+                        yield return new WaitForSecondsRealtime(backgroundZoom.ZoomDuration);
+                    }
+                    else
+                    {
+                        yield return new WaitForSeconds(backgroundZoom.ZoomDuration);
+                    }
+                }
+            }
+
+            onNewGameRequested?.Invoke();
+            isStartingNewGame = false;
+            newGameTransitionCoroutine = null;
+        }
+
+        private void ResolveBackgroundZoom()
+        {
+            if (backgroundZoom != null)
+            {
+                return;
+            }
+
+            backgroundZoom = GetComponentInChildren<MenuBackgroundZoom>(true);
+        }
+
+        private void SetButtonsInteractable(bool isInteractable)
+        {
+            if (newGameButton != null)
+            {
+                newGameButton.interactable = isInteractable;
+            }
+
+            if (loadGameButton != null && loadGameButton.gameObject.activeSelf)
+            {
+                loadGameButton.interactable = isInteractable;
             }
         }
     }

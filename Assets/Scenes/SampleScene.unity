@@ -527,6 +527,8 @@ MonoBehaviour:
   rootContainer: {fileID: 166954250}
   newGameButton: {fileID: 1199449948}
   loadGameButton: {fileID: 215481292}
+  backgroundZoom: {fileID: 2097993394}
+  playBackgroundZoomOnShow: 1
 --- !u!114 &166954252
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2380,6 +2382,7 @@ GameObject:
   - component: {fileID: 2097993391}
   - component: {fileID: 2097993393}
   - component: {fileID: 2097993392}
+  - component: {fileID: 2097993394}
   m_Layer: 5
   m_Name: Background
   m_TagString: Untagged
@@ -2420,7 +2423,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.745283, g: 0.745283, b: 0.745283, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2445,6 +2448,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2097993390}
   m_CullTransparentMesh: 1
+--- !u!114 &2097993394
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2097993390}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f0d2aa3f795976458db1810b3d931de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  zoomTarget: {fileID: 2097993391}
+  startScale: 1
+  endScale: 1.2
+  zoomDuration: 0.25
+  useUnscaledTime: 1
 --- !u!1 &2120080677
 GameObject:
   m_ObjectHideFlags: 0
