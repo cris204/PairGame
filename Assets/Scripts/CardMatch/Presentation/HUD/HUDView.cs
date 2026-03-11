@@ -15,6 +15,7 @@ namespace CardMatch.Presentation.HUD
         [SerializeField] private TextMeshProUGUI scoreText;
         [SerializeField] private TextMeshProUGUI comboText;
         [SerializeField] private TextMeshProUGUI gameOverText;
+        [SerializeField] private Image gameOverFadeOverlay;
         [SerializeField] private Button newGameButton;
         [SerializeField] private float comboScalePerStep = 0.05f;
         [SerializeField] private float comboMaxScaleBonus = 0.35f;
@@ -26,20 +27,31 @@ namespace CardMatch.Presentation.HUD
         [SerializeField] private Color comboBaseColor = Color.white;
         [SerializeField] private Color comboFlashColor = new Color(1f, 0.92f, 0.35f, 1f);
         [SerializeField] private float comboFlashDuration = 0.24f;
+        [SerializeField] private Color gameOverFadeColor = new Color(0f, 0f, 0f, 0.88f);
+        [SerializeField] private float gameOverFadeDuration = 0.45f;
 
         private RectTransform comboRectTransform;
         private Vector2 comboDefaultAnchoredPosition;
         private Vector3 comboDefaultScale;
         private Coroutine comboPulseCoroutine;
         private Coroutine comboFlashCoroutine;
+        private Coroutine gameOverFadeCoroutine;
         private int currentComboValue;
         private int lastAnimatedComboValue;
         private float comboPulseMultiplier = 1f;
+        private bool isGameOverVisible;
 
         private void Awake()
         {
             ResolveComboVisualReferences();
+
+            if (gameOverFadeOverlay != null)
+            {
+                gameOverFadeOverlay.raycastTarget = false;
+            }
+
             Hide();
+            SetGameOverFadeImmediate(false);
             SetGameOverVisible(false);
         }
 
@@ -61,6 +73,8 @@ namespace CardMatch.Presentation.HUD
             canvasGroup.interactable = false;
             canvasGroup.alpha = 0;
             canvasGroup.blocksRaycasts = false;
+            isGameOverVisible = false;
+            SetGameOverFadeImmediate(false);
         }
 
         public void BindNewGameAction(UnityAction action)
@@ -128,12 +142,21 @@ namespace CardMatch.Presentation.HUD
 
         private void SetGameOverVisible(bool isVisible)
         {
-            if (gameOverText == null)
+            if (isGameOverVisible == isVisible)
             {
                 return;
             }
 
+            isGameOverVisible = isVisible;
+
+            if (gameOverText == null)
+            {
+                PlayGameOverFade(isVisible);
+                return;
+            }
+
             gameOverText.gameObject.SetActive(isVisible);
+            PlayGameOverFade(isVisible);
         }
 
         private void ResolveComboVisualReferences()
@@ -288,5 +311,94 @@ namespace CardMatch.Presentation.HUD
             comboText.color = comboBaseColor;
         }
 
+        private void PlayGameOverFade(bool isVisible)
+        {
+            if (gameOverFadeOverlay == null)
+            {
+                return;
+            }
+
+            if (gameOverFadeCoroutine != null)
+            {
+                StopCoroutine(gameOverFadeCoroutine);
+            }
+
+            gameOverFadeCoroutine = StartCoroutine(AnimateGameOverFade(isVisible));
+        }
+
+        private IEnumerator AnimateGameOverFade(bool isVisible)
+        {
+            gameOverFadeOverlay.gameObject.SetActive(true);
+
+            Color currentColor = gameOverFadeOverlay.color;
+            float startAlpha = currentColor.a;
+            float targetAlpha = isVisible ? gameOverFadeColor.a : 0f;
+
+            if (gameOverFadeDuration <= 0f)
+            {
+                gameOverFadeOverlay.color = new Color(
+                    gameOverFadeColor.r,
+                    gameOverFadeColor.g,
+                    gameOverFadeColor.b,
+                    targetAlpha);
+
+                if (!isVisible)
+                {
+                    gameOverFadeOverlay.gameObject.SetActive(false);
+                }
+
+                gameOverFadeCoroutine = null;
+                yield break;
+            }
+
+            float elapsed = 0f;
+
+            while (elapsed < gameOverFadeDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = Mathf.Clamp01(elapsed / gameOverFadeDuration);
+                float alpha = Mathf.Lerp(startAlpha, targetAlpha, t);
+                gameOverFadeOverlay.color = new Color(
+                    gameOverFadeColor.r,
+                    gameOverFadeColor.g,
+                    gameOverFadeColor.b,
+                    alpha);
+                yield return null;
+            }
+
+            gameOverFadeOverlay.color = new Color(
+                gameOverFadeColor.r,
+                gameOverFadeColor.g,
+                gameOverFadeColor.b,
+                targetAlpha);
+
+            if (!isVisible)
+            {
+                gameOverFadeOverlay.gameObject.SetActive(false);
+            }
+
+            gameOverFadeCoroutine = null;
+        }
+
+        private void SetGameOverFadeImmediate(bool isVisible)
+        {
+            if (gameOverFadeCoroutine != null)
+            {
+                StopCoroutine(gameOverFadeCoroutine);
+                gameOverFadeCoroutine = null;
+            }
+
+            if (gameOverFadeOverlay == null)
+            {
+                return;
+            }
+
+            gameOverFadeOverlay.gameObject.SetActive(isVisible);
+            gameOverFadeOverlay.color = new Color(
+                gameOverFadeColor.r,
+                gameOverFadeColor.g,
+                gameOverFadeColor.b,
+                isVisible ? gameOverFadeColor.a : 0f);
+        }
     }
 }
