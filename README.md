@@ -28,6 +28,19 @@ The project was developed with emphasis on clean architecture, responsive intera
 2. Open the main gameplay scene.
 3. Press Play in the Editor.
 
+## Board Configuration
+
+The default board layout can be edited from the `GameConfig` asset:
+
+- `Assets/GameConfig.asset`
+
+To change the starting board size, update:
+
+- `Default Rows`
+- `Default Columns`
+
+Other gameplay values such as spacing, scoring, combo behavior, autosave, audio volume, and initial reveal timing are also configured from the same asset.
+
 ## Gameplay Notes
 
 - `New Game` starts a fresh board using the current configured layout.
